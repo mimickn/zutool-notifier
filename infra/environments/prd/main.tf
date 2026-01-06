@@ -80,7 +80,8 @@ module "cloud_run_job" {
     LINE_USER_ID             = var.line_user_id
   }
 
-  slack_secret_name = module.slack_secret.name
+  slack_secret_name    = module.slack_secret.name
+  slack_secret_version = var.slack_secret_version
 }
 
 module "scheduler" {

@@ -34,6 +34,12 @@ variable "slack_secret_name" {
   description = "Secret Manager secret resource name for SLACK_WEBHOOK_URL"
 }
 
+variable "slack_secret_version" {
+  type        = string
+  description = "Secret Manager secret version for SLACK_WEBHOOK_URL (e.g., 'latest', '1', '2')"
+  default     = "latest"
+}
+
 resource "google_cloud_run_v2_job" "this" {
   name     = var.name
   location = var.location
@@ -59,7 +65,7 @@ resource "google_cloud_run_v2_job" "this" {
           value_source {
             secret_key_ref {
               secret  = var.slack_secret_name
-              version = "latest"
+              version = var.slack_secret_version
             }
           }
         }

@@ -20,3 +20,6 @@ scheduler_name      = "zutool-notifier-schedule"
 # 毎朝 7:00 (Asia/Tokyo) に実行する例
 scheduler_cron      = "0 7 * * *"
 scheduler_time_zone = "Asia/Tokyo"
+
+# Secret Manager
+# slack_secret_version = "latest"  # Optional: Specify a specific version number (e.g., "1", "2") for production deployments

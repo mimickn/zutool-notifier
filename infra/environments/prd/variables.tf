@@ -59,3 +59,9 @@ variable "scheduler_time_zone" {
   description = "Time zone for Cloud Scheduler (e.g. Asia/Tokyo)"
   default     = "Asia/Tokyo"
 }
+
+variable "slack_secret_version" {
+  type        = string
+  description = "Secret Manager secret version for SLACK_WEBHOOK_URL (e.g., 'latest', '1', '2'). Defaults to 'latest' for convenience, but consider using a specific version in production for better control."
+  default     = "latest"
+}
