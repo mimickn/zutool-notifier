@@ -1,4 +1,5 @@
 # terraform.tfvars のサンプル
+# always_notify: 通知条件に関わらず常に通知を送信するかどうかを指定するフラグ
 
 project_id  = "your-gcp-project-id"
 
