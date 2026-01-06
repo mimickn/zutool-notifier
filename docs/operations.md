@@ -26,7 +26,7 @@
 2. シークレットの登録
    - GCP Secret Manager に、以下のシークレットを登録する。
      - `LINE_CHANNEL_ACCESS_TOKEN`: LINE Messaging API のチャネルアクセストークン
-  - Terraform 構成を利用する場合、`SLACK_WEBHOOK_URL` シークレット自体（入れ物）は `terraform apply` により自動作成される。
+  - Terraform 構成を利用する場合、`SLACK_WEBHOOK_URL` および `LINE_CHANNEL_ACCESS_TOKEN` シークレット自体（入れ物）は `terraform apply` により自動作成される。
 
 3. Terraform 変数ファイル（terraform.tfvars）の準備
    - ディレクトリを `infra/environments/prd` に移動する。
@@ -132,6 +132,15 @@
     - Slack のみ設定されている場合は Slack のみ通知される。
     - LINE 関連の設定も行った場合は、spec.md に記載の通り Slack と LINE の両方へ同一内容の通知が送信される。
     - 必要に応じて、環境変数 `NOTIFICATION_TARGET=slack|line` のようなモードを追加し、コード側で送信先を制御する拡張も検討する。
+
+  ### LINE Messaging API 用のシークレット設定
+
+  1. LINE_CHANNEL_ACCESS_TOKEN の保存
+    - LINE Developers コンソールで発行したチャネルアクセストークンをコピーし、GCP Secret Manager に `LINE_CHANNEL_ACCESS_TOKEN` という名前で保存する。
+    - 本プロジェクトの Terraform 構成を利用している場合は、`terraform apply` によって `LINE_CHANNEL_ACCESS_TOKEN` というシークレット（入れ物）のみが作成されるため、**初回に一度だけ**コンソールから中身（シークレットバージョン）を登録する。
+      - GCP コンソール → Secret Manager → `LINE_CHANNEL_ACCESS_TOKEN` を開く → 「新しいバージョンを追加」からチャネルアクセストークンを貼り付けて保存する。
+  2. Cloud Run Jobs 側の設定
+    - Terraform 構成を利用している場合、`LINE_CHANNEL_ACCESS_TOKEN` は自動的に Secret Manager から環境変数として注入されるため、追加の設定は不要。
 
 ## 今後の運用拡張アイデア
 
