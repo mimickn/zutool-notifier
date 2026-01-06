@@ -38,6 +38,12 @@ variable "line_user_id" {
   default     = ""
 }
 
+variable "enable_line_notification" {
+  type        = bool
+  description = "Enable LINE notification (creates LINE_CHANNEL_ACCESS_TOKEN secret)"
+  default     = false
+}
+
 variable "scheduler_region" {
   type        = string
   description = "Region for Cloud Scheduler job (must support Cloud Scheduler, e.g. asia-northeast1)"
