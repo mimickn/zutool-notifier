@@ -25,7 +25,7 @@ export function loadConfig(): AppConfig {
   const thresholdRaw = process.env["PRESSURE_LEVEL_THRESHOLD"] ?? "3";
   const pressureLevelThreshold = Number(thresholdRaw);
   if (!Number.isInteger(pressureLevelThreshold) || pressureLevelThreshold < 0 || pressureLevelThreshold > 4) {
-    throw new Error("PRESSURE_LEVEL_THRESHOLD must be an integer between 0 and 4");
+    throw new Error(`Invalid PRESSURE_LEVEL_THRESHOLD value "${thresholdRaw}". Must be an integer between 0 and 4.`);
   }
 
   const alwaysNotifyRaw = process.env["ALWAYS_NOTIFY"] ?? "false";
