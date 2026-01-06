@@ -64,6 +64,16 @@ module "slack_secret" {
   }
 }
 
+module "line_secret" {
+  source    = "../../modules/secret_manager"
+  project_id = var.project_id
+  secret_id  = "LINE_CHANNEL_ACCESS_TOKEN"
+  labels = {
+    app = "zutool-notifier"
+    env = "prd"
+  }
+}
+
 module "cloud_run_job" {
   source = "../../modules/cloud_run_job"
 
@@ -81,6 +91,7 @@ module "cloud_run_job" {
   }
 
   slack_secret_name = module.slack_secret.name
+  line_secret_name  = module.line_secret.name
 }
 
 module "scheduler" {
