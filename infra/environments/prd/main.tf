@@ -64,6 +64,17 @@ module "slack_secret" {
   }
 }
 
+module "line_secret" {
+  count      = var.enable_line_notification ? 1 : 0
+  source     = "../../modules/secret_manager"
+  project_id = var.project_id
+  secret_id  = "LINE_CHANNEL_ACCESS_TOKEN"
+  labels = {
+    app = "zutool-notifier"
+    env = "prd"
+  }
+}
+
 module "cloud_run_job" {
   source = "../../modules/cloud_run_job"
 
@@ -80,7 +91,14 @@ module "cloud_run_job" {
     LINE_USER_ID             = var.line_user_id
   }
 
-  slack_secret_name = module.slack_secret.name
+  secrets = merge(
+    {
+      SLACK_WEBHOOK_URL = module.slack_secret.name
+    },
+    var.enable_line_notification ? {
+      LINE_CHANNEL_ACCESS_TOKEN = module.line_secret[0].name
+    } : {}
+  )
 }
 
 module "scheduler" {

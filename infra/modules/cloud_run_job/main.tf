@@ -29,9 +29,10 @@ variable "env" {
   default     = {}
 }
 
-variable "slack_secret_name" {
-  type        = string
-  description = "Secret Manager secret resource name for SLACK_WEBHOOK_URL"
+variable "secrets" {
+  type        = map(string)
+  description = "Map of environment variable names to Secret Manager secret resource names (e.g., {SLACK_WEBHOOK_URL = \"projects/.../secrets/...\", LINE_CHANNEL_ACCESS_TOKEN = \"projects/.../secrets/...\"})"
+  default     = {}
 }
 
 resource "google_cloud_run_v2_job" "this" {
@@ -54,12 +55,15 @@ resource "google_cloud_run_v2_job" "this" {
           }
         }
 
-        env {
-          name = "SLACK_WEBHOOK_URL"
-          value_source {
-            secret_key_ref {
-              secret  = var.slack_secret_name
-              version = "latest"
+        dynamic "env" {
+          for_each = var.secrets
+          content {
+            name = env.key
+            value_source {
+              secret_key_ref {
+                secret  = env.value
+                version = "latest"
+              }
             }
           }
         }
