@@ -26,28 +26,27 @@
 2. シークレットの登録
    - GCP Secret Manager に、以下のシークレットを登録する。
      - `LINE_CHANNEL_ACCESS_TOKEN`: LINE Messaging API のチャネルアクセストークン
+  - Terraform 構成を利用する場合、`SLACK_WEBHOOK_URL` シークレット自体（入れ物）は `terraform apply` により自動作成される。
 
-3. Cloud Run Jobs の作成
+3. Terraform 変数ファイル（terraform.tfvars）の準備
+   - ディレクトリを `infra/environments/prd` に移動する。
+     - 例: `cd infra/environments/prd`
+   - サンプルファイル `terraform.tfvars.example` をコピーして `terraform.tfvars` を作成する。
+     - 例: `cp terraform.tfvars.example terraform.tfvars`
+   - `terraform.tfvars` を開き、自分の環境に合わせて以下の値を編集する。
+     - `project_id`: 利用する GCP プロジェクトID
+     - `zutool_place_id`: 頭痛ーるで使用する地点ID
+     - `scheduler_region`, `scheduler_cron` など、必要に応じたスケジューラ設定
+   - `terraform.tfvars` は `.gitignore` に含まれており、リポジトリにはコミットしない。
+
+4. Cloud Run Jobs の作成
    - 本リポジトリのソースから Docker イメージをビルドし、Container Registry / Artifact Registry にプッシュする。
-   - Cloud Run Jobs を作成し、以下を設定する。
-     - 使用イメージ: 上記でプッシュしたイメージ
-     - タスク数: 1
-     - タイムアウト: 5分程度
-     - サービスアカウント: Secret Manager 読み取り権限のみ付与した専用アカウント
-     - 環境変数:
-       - ZUTOOL_PLACE_ID: 対象地点ID
-       - PRESSURE_LEVEL_THRESHOLD: しきい値（未設定可、未設定時は3）
-       - LINE_USER_ID: 通知対象ユーザーの userId
-     - シークレットのマッピング:
-       - Secret Manager の `LINE_CHANNEL_ACCESS_TOKEN` を環境変数として注入
+   - Terraform の `infra/environments/prd` 配下から `terraform apply` を実行すると、Cloud Run Job と、その実行に利用する専用サービスアカウントが自動的に作成される。
+   - アプリケーションが利用する環境変数やシークレットのマッピングも Terraform で定義されているため、コンソール上で個別に設定する必要はない（Docker イメージのパスや各種変数値は `terraform.tfvars` 経由で指定）。
 
-4. Cloud Scheduler の作成
-   - 毎日7:00（Asia/Tokyo）に Cloud Run Job を起動する Cloud Scheduler ジョブを作成する。
-   - 設定例:
-     - スケジュール: `0 7 * * *`
-     - タイムゾーン: Asia/Tokyo
-     - ターゲット: Cloud Run Jobs 実行エンドポイント
-     - リトライ: 初期は無効とする（重複通知防止のため）
+5. Cloud Scheduler の作成
+  - 毎日7:00（Asia/Tokyo）に Cloud Run Job を起動する Cloud Scheduler ジョブも、`terraform apply` により自動作成される。
+  - スケジュール（cron）やタイムゾーン、Scheduler が利用するサービスアカウントは `terraform.tfvars` から指定する。
 
 ## 日常運用
 
@@ -118,7 +117,9 @@
     - 作成したアプリの設定画面で「Incoming Webhooks」を有効にする。
     - 「Add New Webhook to Workspace」から、通知を流したいチャンネル（自分専用のプライベートチャンネルなど）を選択し、Webhook URL を発行する。
   3. Webhook URL の保存
-    - 発行された Webhook URL（`https://hooks.slack.com/services/...`）をコピーし、GCP Secret Manager に `SLACK_WEBHOOK_URL` などの名前で保存する。
+    - 発行された Webhook URL（`https://hooks.slack.com/services/...`）をコピーし、GCP Secret Manager に `SLACK_WEBHOOK_URL` という名前で保存する。
+    - 本プロジェクトの Terraform 構成を利用している場合は、`terraform apply` によって `SLACK_WEBHOOK_URL` というシークレット（入れ物）のみが作成されるため、**初回に一度だけ**コンソールから中身（シークレットバージョン）を登録する。
+      - GCP コンソール → Secret Manager → `SLACK_WEBHOOK_URL` を開く → 「新しいバージョンを追加」から Webhook URL を貼り付けて保存する。
 
   ### Cloud Run Jobs 側の設定変更
 
