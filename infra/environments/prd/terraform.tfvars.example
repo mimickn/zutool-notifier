@@ -1,0 +1,22 @@
+# terraform.tfvars のサンプル
+# always_notify: 通知条件に関わらず常に通知を送信するかどうかを指定するフラグ
+
+project_id  = "your-gcp-project-id"
+
+# Cloud Run Job
+region   = "asia-northeast1"
+job_name = "zutool-notifier-job"
+
+# アプリ設定
+zutool_place_id          = "YOUR_ZUTOOL_PLACE_ID"
+pressure_level_threshold = 3
+always_notify            = false
+# LINE を使わない場合は空のままでOK
+line_user_id             = ""
+
+# Cloud Scheduler
+scheduler_region    = "asia-northeast1"
+scheduler_name      = "zutool-notifier-schedule"
+# 毎朝 7:00 (Asia/Tokyo) に実行する例
+scheduler_cron      = "0 7 * * *"
+scheduler_time_zone = "Asia/Tokyo"
